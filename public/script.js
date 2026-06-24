@@ -158,9 +158,29 @@
 
   // ========== API 调用 ==========
 
+  // 检测是否表达了对张老师的怀念
+  function checkMemorialKeywords(text) {
+    const keywords = /想念|怀念|思念|想他|缅怀|纪念|怀念他|想你了|张老师.*走|可惜.*不在了|再也.*听不到|缅怀|悼念|一路走好|rip/i;
+    return keywords.test(text);
+  }
+
+  function playMemorialSong() {
+    const audio = document.getElementById('memorialAudio');
+    if (audio) {
+      audio.currentTime = 0;
+      audio.volume = 0.6;
+      audio.play().catch(() => {}); // 浏览器自动播放限制时静默失败
+    }
+  }
+
   async function sendMessage(message) {
     if (isLoading) return;
     if (!message || message.trim().length === 0) return;
+
+    // 检测到怀念关键词 → 播放念张师
+    if (checkMemorialKeywords(message)) {
+      playMemorialSong();
+    }
 
     // 显示用户消息
     addMessage('user', message);
