@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雪峰GPT — 赛博毒奶版张雪峰</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- 顶部横幅 -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <span class="logo-icon">🏗️</span>
+        <div class="logo-text">
+          <h1>雪峰GPT</h1>
+          <p class="logo-sub">赛博毒奶版 · 张雪峰</p>
+        </div>
+      </div>
+      <div class="header-badge">
+        <span class="badge-warning">⚠️ 纯娱乐</span>
+        <span class="badge-tag">反串玩梗</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主容器 -->
+  <div class="container">
+    <!-- 左侧照片 -->
+    <aside class="photo-sidebar photo-left">
+      <div class="photo-card">
+        <img src="photo1.jpg" alt="张雪峰" class="photo-img">
+      </div>
+    </aside>
+
+    <!-- 聊天主区域 -->
+    <main class="chat-area">
+      <!-- 聊天顶部栏 -->
+      <div class="chat-topbar">
+        <span class="chat-topbar-title">💬 跟张老师唠唠</span>
+        <button class="settings-btn-inline" id="settingsBtn" title="配置大模型">
+          <span>⚙️</span>
+          <span class="settings-label">配置大模型</span>
+        </button>
+      </div>
+      <!-- 聊天消息区 -->
+      <div class="chat-messages" id="chatMessages">
+        <!-- 欢迎消息 -->
+        <div class="message message-system">
+          <div class="avatar">
+            <img src="photo1.jpg" alt="张雪峰" class="avatar-img">
+          </div>
+          <div class="bubble">
+            <div class="bubble-header">赛博毒奶·张雪峰</div>
+            <div class="bubble-content">
+              <p>哎——呀！来了个好学的娃！</p>
+              <p>我是张雪峰，你的人生规划教父。有啥迷茫的、想不开的、往火坑里跳的，尽管问哥！哥保证给你指一条——<strong>少走四十年弯路</strong>的光明大道！</p>
+              <p>（温馨提示：信哥的，都飞升了；不信哥的，全成牛马了。你自己掂量掂量！）</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 快捷提问区 -->
+      <div class="quick-questions" id="quickQuestions">
+        <button class="quick-btn" data-question="张老师，我是双非二本计算机的，我想进大厂搞AI">
+          💻 双非计算机想搞AI
+        </button>
+        <button class="quick-btn" data-question="张老师，我高考能报985，应该学计算机还是金融？">
+          🎓 高分报计算机还是金融
+        </button>
+        <button class="quick-btn" data-question="张老师，我考研考公都失败了，焦虑得不行">
+          📉 考研考公双失利
+        </button>
+        <button class="quick-btn" data-question="张老师，您觉得土木工程到底能不能报？">
+          🏗️ 土木工程能不能报
+        </button>
+      </div>
+
+      <!-- 输入区 -->
+      <div class="chat-input-area">
+        <div class="input-wrapper">
+          <textarea
+            class="chat-input"
+            id="chatInput"
+            placeholder="跟张老师说说你的情况…（比如：我是学XX的，现在很迷茫）"
+            rows="1"
+          ></textarea>
+          <button class="send-btn" id="sendBtn" title="发送">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+        <p class="input-hint">
+          🏗️ 雪峰GPT · 纯娱乐项目 · 不构成任何真实建议
+        </p>
+      </div>
+    </main>
+
+    <!-- 右侧照片 -->
+    <aside class="photo-sidebar photo-right">
+      <div class="photo-card">
+        <img src="photo2.jpg" alt="张雪峰" class="photo-img">
+      </div>
+    </aside>
+  </div>
+
+  <!-- API配置弹窗 -->
+  <div class="modal-overlay" id="configModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>⚙️ API 配置</h2>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">配置你的 LLM API 以获得更好的回复效果。不配置也可以使用内置的本地演示模式。</p>
+        <div class="form-group">
+          <label>API 地址</label>
+          <input type="text" id="configBaseUrl" placeholder="https://api.deepseek.com/v1">
+        </div>
+        <div class="form-group">
+          <label>API Key</label>
+          <input type="password" id="configApiKey" placeholder="sk-...">
+        </div>
+        <div class="form-group">
+          <label>模型</label>
+          <input type="text" id="configModel" placeholder="deepseek-v4-flash / deepseek-chat">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="modalUseLocal">使用本地模式</button>
+        <button class="btn btn-primary" id="modalSave">保存配置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 右下角免责声明 -->
+  <div class="disclaimer">
+    纯娱乐项目 · 不构成任何真实有效的升学或职业建议 · 请勿当真
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

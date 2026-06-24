@@ -1,0 +1,16 @@
+{
+  "name": "xuefeng-gpt",
+  "version": "1.0.0",
+  "description": "赛博毒奶版张雪峰 Chat Agent — 纯娱乐向反串玩梗项目",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2"
+  }
+}
