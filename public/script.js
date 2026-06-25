@@ -26,10 +26,17 @@
 
   // ========== 配置管理（存后端数据库） ==========
 
+  let myUserId = localStorage.getItem('xuefeng_userid') || '';
+
   async function loadConfigFromServer() {
     try {
       const res = await fetch('/api/config');
       const data = await res.json();
+      // 保存 userId 到 localStorage，清除 Cookie 也能找回
+      if (data.userId) {
+        myUserId = data.userId;
+        localStorage.setItem('xuefeng_userid', data.userId);
+      }
       if (data.configured) {
         apiConfig = data;
       } else {
@@ -201,7 +208,8 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message: message,
-            history: conversationHistory.slice(0, -1)
+            history: conversationHistory.slice(0, -1),
+            _userId: myUserId
           })
         });
 

@@ -136,15 +136,15 @@ app.get('/api/config', (req, res) => {
   const userId = db.resolveUserId(req, res);
   const config = db.getUserConfig(userId);
   if (!config) {
-    return res.json({ configured: false });
+    return res.json({ configured: false, userId });
   }
-  // 脱敏：只显示 API Key 的后 4 位，中间用星号
   const rawKey = config.apiKey || '';
   const maskedKey = rawKey.length > 8
     ? rawKey.slice(0, 4) + '****' + rawKey.slice(-4)
     : (rawKey ? '****' : '');
   res.json({
     configured: true,
+    userId,
     baseUrl: config.baseUrl,
     model: config.model,
     apiKeyMasked: maskedKey,
@@ -157,8 +157,16 @@ app.post('/api/config', (req, res) => {
   const { apiKey, baseUrl, model } = req.body;
   const userId = db.resolveUserId(req, res);
   const config = db.saveUserConfig(userId, { apiKey, baseUrl, model });
+  // 也尝试按 Key 合并旧数据（防止同一个人开了两个 Cookie）
+  if (apiKey) {
+    const existing = db.findByApiKey(apiKey);
+    if (existing && existing.userId !== userId) {
+      db.saveUserConfig(existing.userId, { apiKey: '', baseUrl: '', model: '' });
+    }
+  }
   res.json({
     success: true,
+    userId,
     baseUrl: config.baseUrl,
     model: config.model,
     updatedAt: config.updatedAt
@@ -187,9 +195,13 @@ app.post('/api/chat', async (req, res) => {
     { role: 'user', content: message }
   ];
 
-  // 自动从数据库读取用户配置 → .env 兜底
-  const userId = db.resolveUserId(req, res);
-  const userConfig = db.getUserConfig(userId) || {};
+  // 读取用户配置：localStorage(userId) → Cookie → .env 兜底
+  const userId = (req.body && req.body._userId) || db.resolveUserId(req, res);
+  let userConfig = db.getUserConfig(userId) || {};
+  // Cookie 对不上时再试一次 localStorage 的 userId
+  if (!userConfig.apiKey && req.body && req.body._userId) {
+    userConfig = db.getUserConfig(req.body._userId) || {};
+  }
   const activeApiKey = userConfig.apiKey || process.env.API_KEY;
   const activeBaseUrl = userConfig.baseUrl || process.env.API_BASE_URL || 'https://api.deepseek.com/v1';
   const activeModel = userConfig.model || process.env.MODEL || 'deepseek-v4-flash';

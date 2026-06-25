@@ -56,16 +56,37 @@ function saveUserConfig(userId, { apiKey, baseUrl, model }) {
   return getUserConfig(userId);
 }
 
-/** 生成或获取用户ID（基于 Cookie） */
+/** 通过 API Key 反向查找用户（Cookie 丢了也能找回） */
+function findByApiKey(apiKey) {
+  if (!apiKey || apiKey.length < 8) return null;
+  const prefix = apiKey.slice(0, 20);
+  const stmt = db.prepare("SELECT * FROM user_config WHERE substr(api_key,1,20) = ?");
+  const row = stmt.get(prefix);
+  return row ? {
+    userId: row.user_id,
+    apiKey: row.api_key,
+    baseUrl: row.base_url,
+    model: row.model,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  } : null;
+}
+
+/** 生成或获取用户ID（优先级：请求体 → Cookie → 新建） */
 function resolveUserId(req, res) {
+  // 1. 前端 localStorage 传过来的 userId 优先
+  if (req.body && req.body._userId) {
+    return req.body._userId;
+  }
+
+  // 2. Cookie
   const cookieHeader = req.headers.cookie || '';
   const match = cookieHeader.match(/xuefeng_uid=([^;]+)/);
   if (match) return match[1];
 
-  // 新用户：生成唯一ID并种 Cookie
+  // 3. 新用户：生成唯一ID并种 Cookie
   const newId = 'usr_' + crypto.randomBytes(12).toString('hex');
   const cookie = `xuefeng_uid=${newId}; Path=/; Max-Age=31536000; SameSite=Lax`;
-  // 追加到已有 Set-Cookie 头后面
   const existing = res.getHeader('Set-Cookie');
   if (existing) {
     res.setHeader('Set-Cookie', [].concat(existing, cookie));
@@ -78,5 +99,6 @@ function resolveUserId(req, res) {
 module.exports = {
   getUserConfig,
   saveUserConfig,
+  findByApiKey,
   resolveUserId
 };
